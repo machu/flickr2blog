@@ -303,4 +303,4 @@ if (typeof flickrToBlogUserId != "undefined") {
   flickrToBlog.setup(flickrToBlogUserId, flickrToBlogBlogType);
 }
 
-})});
+})})});
