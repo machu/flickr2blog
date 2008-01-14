@@ -171,7 +171,7 @@ flickrToBlog.blog= {
       return '<a href="' + webUrl + '">' + img + '</a>';
     },
     textarea: function() {
-      return jQuery('textarea');
+      return jQuery('textarea:first');
     }
   },
 
