@@ -21,6 +21,7 @@ var load = function(src, check, next) {
 };
 
 // load jQuery library
+load(flickrToBlogBaseUrl + 'lib/jquery-1.2.1.min.js', 'window.jQuery', function(){
 // jQuery.fn.prevAll は jQuery1.1系には存在しない
 // （jQuery1.1系が使われている場合は1.2系で上書きする）
 load(flickrToBlogBaseUrl + 'lib/jquery-1.2.1.min.js', 'window.jQuery.fn.prevAll', function(){
