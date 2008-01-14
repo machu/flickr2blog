@@ -56,7 +56,9 @@ flickrToBlog = {
 
   // 最新の画像を取得する
   getRecentPhotos: function() {
+    jQuery('#flickr_to_blog_loading').show();
     this.flickrClient.peoplePhotos(this.user.id, function(photos) {
+      jQuery('#flickr_to_blog_loading').hide();
       flickrToBlog.photos = photos.photo;
       flickrToBlog.showWindow();
       flickrToBlog.window.updatePhotos(flickrToBlog.photos);
@@ -64,13 +66,15 @@ flickrToBlog = {
   },
 
   // 画像を検索する
-  // TODO Searchボタンのclickと関連付け
   searchPhotos: function() {
-    //this.flickrClient.searchPhotos(this.user.id, function(photos) {
-    //  flickrToBlog.photos = photos;
-    //});
-    flickrToBlog.showWindow();
-    flickrToBlog.window.updatePhotos(flickrToBlog.photos);
+    var text = jQuery('#flickr_to_blog_photo_search_text').val();
+    jQuery('#flickr_to_blog_loading').show();
+    this.flickrClient.searchPhotos(this.user.id, text, function(photos) {
+      jQuery('#flickr_to_blog_loading').hide();
+      flickrToBlog.photos = photos.photo;
+      flickrToBlog.showWindow();
+      flickrToBlog.window.updatePhotos(flickrToBlog.photos);
+    });
   },
 
   // 画像を表示する
@@ -88,20 +92,38 @@ flickrToBlog.window = {
   create: function() {
     var main_id = 'flickr_to_blog';
     var photos_id = 'flickr_to_blog_photos';
-    // 写真サイズ選択領域
-    var control = jQuery('<div id="flickr_to_blog_control">').text("photo size: ");
-    // 写真表示領域
-    this.photos = jQuery('<div id="' + photos_id + '">');
     // メインウィンドウ
     this.main = jQuery('<div id="' + main_id + '">')
       .css({ display: "none" })
-      .append(control)
-      .append(this.photos)
       .appendTo(jQuery('body'));
+    // コントロール領域
+    var control = jQuery('<div id="flickr_to_blog_control">')
+      .appendTo(this.main);
+    // 読み込み中のアイコン
+    jQuery('<img id="flickr_to_blog_loading" src="' + imgLoader.src + '" />')
+      .css({display: "none", float: "right", margin: "1em"})
+      .appendTo(control);
+    // 写真検索領域
+    var search = jQuery('<div>')
+      .append('<form id="flickr_to_blog_photo_search"></form>')
+      .appendTo(control);
+    jQuery('#flickr_to_blog_photo_search')
+      .append('photo search: ')
+      .css({padding: "0.5em", borderBottom: "solid 1px #999"})
+      .append('<input type="text" id="flickr_to_blog_photo_search_text"> ')
+      .append('<button id="flickr_to_blog_photo_search_submit">Search</button>')
+      .submit(function() { flickrToBlog.searchPhotos();  return false; });
+    // 写真サイズ選択領域
+    var photoSize = jQuery('<div id="flickr_to_blog_photo_size">')
+      .css({margin: "0.5em"})
+      .append("photo size: ")
+      .appendTo(control);
     jQuery.each(["square", "thumbnail", "small", "medium", "large"], function(i, size) {
-      control.append('<input type="radio" id="flickr_to_blog_photo_size_' + size + '" name="flickr_to_blog_photo_size" value="' + size + '">')
+      photoSize.append('<input type="radio" id="flickr_to_blog_photo_size_' + size + '" name="flickr_to_blog_photo_size" value="' + size + '">')
       .append('<label for="flickr_to_blog_photo_size_' + size + '">' + size + '</label> ');
     });
+    // 写真表示領域
+    this.photos = jQuery('<div id="' + photos_id + '">').appendTo(this.main);
     // IEだとtb_show()のタイミングでradioのcheckedが外れるので、
     // 選択内容を退避するためのフック
     jQuery('input[@name=flickr_to_blog_photo_size]').change(function() {
@@ -111,7 +133,7 @@ flickrToBlog.window = {
     flickrToBlog.window.photoSize = "small";
   },
 
-  // 引数で受け取った画像を取得する
+  // 引数で受け取った画像を表示する
   updatePhotos: function(photos) {
     var main = this.main;
     var target = this.photos;
@@ -252,6 +274,31 @@ flickrToBlog.flickrClient = {
       per_page: 10,
       format: 'json'
     };
+    var url = this.baseUrl + this.serialize(params);
+    jQuery.ajax({
+      url: url,
+      dataType: "jsonp",
+      jsonp: "jsoncallback",
+      success: function(data, textStatus) {
+        if (data.stat != "ok") {
+          alert('Sorry, failed to connect to Flickr server.');
+          return;
+        }
+        callback(data.photos);
+      }
+    });
+  },
+
+  searchPhotos: function(userId, text, callback) {
+    var params = {
+      api_key: this.apiKey,
+      method: 'flickr.photos.search',
+      user_id: userId,
+      text: text,
+      per_page: 10,
+      format: 'json'
+    };
+    // TODO: 以下の処理を他の関数とひとつにまとめる
     var url = this.baseUrl + this.serialize(params);
     jQuery.ajax({
       url: url,
