@@ -44,7 +44,7 @@ flickrToBlog = {
   setup: function(userId, blogType) {
     this.userId = userId;
     this.blogType = blogType;
-    this.window.create();
+    this.showWindow();
     this.flickrClient.peopleInfo(userId, function(person) {
       flickrToBlog.user = person;
       flickrToBlog.getRecentPhotos();
@@ -55,8 +55,8 @@ flickrToBlog = {
   getRecentPhotos: function() {
     this.flickrClient.peoplePhotos(this.user.id, function(photos) {
       flickrToBlog.photos = photos.photo;
-      flickrToBlog.window.updatePhotos(flickrToBlog.photos);
       flickrToBlog.showWindow();
+      flickrToBlog.window.updatePhotos(flickrToBlog.photos);
     });
   },
 
@@ -66,12 +66,15 @@ flickrToBlog = {
     //this.flickrClient.searchPhotos(this.user.id, function(photos) {
     //  flickrToBlog.photos = photos;
     //});
-    flickrToBlog.window.updatePhotos(flickrToBlog.photos);
     flickrToBlog.showWindow();
+    flickrToBlog.window.updatePhotos(flickrToBlog.photos);
   },
 
   // 画像を表示する
   showWindow: function() {
+    if (!flickrToBlog.window.main) {
+      flickrToBlog.window.create();
+    }
     flickrToBlog.window.show();
   }
 }
@@ -83,7 +86,7 @@ flickrToBlog.window = {
     var main_id = 'flickr_to_blog';
     var photos_id = 'flickr_to_blog_photos';
     // 写真サイズ選択領域
-    var control = jQuery('<div id="control">').text("photo size: ");
+    var control = jQuery('<div id="flickr_to_blog_control">').text("photo size: ");
     // 写真表示領域
     this.photos = jQuery('<div id="' + photos_id + '">');
     // メインウィンドウ
