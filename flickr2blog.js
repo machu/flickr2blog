@@ -56,8 +56,9 @@ flickrToBlog = {
 
   // 最新の画像を取得する
   getRecentPhotos: function() {
+    var count = jQuery('#flickr_to_blog_photo_search_count').val();
     jQuery('#flickr_to_blog_loading').show();
-    this.flickrClient.peoplePhotos(this.user.id, function(photos) {
+    this.flickrClient.peoplePhotos(this.user.id, count, function(photos) {
       jQuery('#flickr_to_blog_loading').hide();
       flickrToBlog.photos = photos.photo;
       flickrToBlog.showWindow();
@@ -68,8 +69,9 @@ flickrToBlog = {
   // 画像を検索する
   searchPhotos: function() {
     var text = jQuery('#flickr_to_blog_photo_search_text').val();
+    var count = jQuery('#flickr_to_blog_photo_search_count').val();
     jQuery('#flickr_to_blog_loading').show();
-    this.flickrClient.searchPhotos(this.user.id, text, function(photos) {
+    this.flickrClient.searchPhotos(this.user.id, text, count, function(photos) {
       jQuery('#flickr_to_blog_loading').hide();
       flickrToBlog.photos = photos.photo;
       flickrToBlog.showWindow();
@@ -104,15 +106,25 @@ flickrToBlog.window = {
       .css({display: "none", float: "right", margin: "1em"})
       .appendTo(control);
     // 写真検索領域
-    var search = jQuery('<div>')
-      .append('<form id="flickr_to_blog_photo_search"></form>')
+    jQuery('<form id="flickr_to_blog_photo_search"></form>')
+      // IEだとformは先にappendToでノードに含めないと反映されない
       .appendTo(control);
     jQuery('#flickr_to_blog_photo_search')
-      .append('photo search: ')
       .css({padding: "0.5em", borderBottom: "solid 1px #999"})
       .append('<input type="text" id="flickr_to_blog_photo_search_text"> ')
-      .append('<button id="flickr_to_blog_photo_search_submit">Search</button>')
+      .append('<button id="flickr_to_blog_photo_search_submit" type="submit">Search</button> ')
+      .append('<select id="flickr_to_blog_photo_search_count"></select>')
       .submit(function() { flickrToBlog.searchPhotos();  return false; });
+    // 検索結果の表示件数
+    jQuery.each(["10", "20", "30", "40", "50"], function(i, count) {
+      jQuery('<option>')
+        .attr({value: count})
+        .text(count)
+        .appendTo('#flickr_to_blog_photo_search_count');
+    });
+    jQuery('#flickr_to_blog_photo_search_count')
+      .css({width: "3em"})
+      .val("20");
     // 写真サイズ選択領域
     var photoSize = jQuery('<div id="flickr_to_blog_photo_size">')
       .css({margin: "0.5em"})
@@ -266,12 +278,12 @@ flickrToBlog.flickrClient = {
   },
 
   // ユーザIDから最近更新された写真を取得する
-  peoplePhotos: function(userId, callback) {
+  peoplePhotos: function(userId, count, callback) {
     var params = {
       api_key: this.apiKey,
       method: 'flickr.people.getPublicPhotos',
       user_id: userId,
-      per_page: 10,
+      per_page: count,
       format: 'json'
     };
     var url = this.baseUrl + this.serialize(params);
@@ -289,13 +301,13 @@ flickrToBlog.flickrClient = {
     });
   },
 
-  searchPhotos: function(userId, text, callback) {
+  searchPhotos: function(userId, text, count, callback) {
     var params = {
       api_key: this.apiKey,
       method: 'flickr.photos.search',
       user_id: userId,
       text: text,
-      per_page: 10,
+      per_page: count,
       format: 'json'
     };
     // TODO: 以下の処理を他の関数とひとつにまとめる
