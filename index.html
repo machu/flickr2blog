@@ -3,7 +3,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>FlickrToBlog</title>
-		<script type="text/javascript" src="lib/jquery-1.2.1.min.js"></script>
+		<script type="text/javascript" src="lib/jquery-1.2.2.min.js"></script>
 		<script type="text/javascript">/*<![CDATA[*/
 			$(document).ready(function(){
 				$('input').change(bookmarklet);
@@ -18,7 +18,10 @@
 				var blogType = $('input[@name=blog_type]:checked').val();
 				var baseUrl = $('#base_url').val();
 				if (userId != "" && blogType != "" && baseUrl != "") {
-					var link = "javascript:flickrToBlogUserId='" + userId + "';flickrToBlogBlogType='" + blogType + "';flickrToBlogBaseUrl='" + baseUrl + "';(function(){ if (typeof flickrToBlog != 'undefined') { flickrToBlog.showWindow() } else { var s=document.createElement('script');s.charset='UTF-8';s.src=flickrToBlogBaseUrl+'flickr2blog.js?'+new Date().getTime();document.body.appendChild(s)} })()";
+					var link = "javascript:var flickrToBlogUserId='" + userId
+					         + "',flickrToBlogBlogType='" + blogType
+					         + "',flickrToBlogBaseUrl='" + baseUrl
+					         + "';(function(d,s){if(typeof flickrToBlog!='undefined')flickrToBlog.showWindow();else{s=d.createElement('script');s.charset='UTF-8';s.src=flickrToBlogBaseUrl+'flickr2blog.js?'+new Date().getTime();d.documentElement.appendChild(s);}})(document)";
 					$('#bookmarklet_src').val(link);
 					$('#bookmarklet').attr({href: link}).show();
 				}
