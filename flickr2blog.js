@@ -44,23 +44,30 @@ imgLoader.src = flickrToBlogBaseUrl + "lib/loadingAnimation.gif";
 // flickrToBlog のメインオブジェクト
 flickrToBlog = {
   // 初期設定: 画面の生成とユーザ情報の取得
-  setup: function(userId, blogType) {
+  setup: function(userId, blogType, flickrClient) {
     this.userId = userId;
     this.blogType = blogType;
+    this.flickrClient = flickrClient;
     this.showWindow();
-    this.flickrClient.peopleInfo(userId, function(person) {
-      flickrToBlog.user = person;
+    var method = 'flickr.people.getInfo';
+    var params = { user_id: userId };
+    this.flickrClient.call(method, params, function(data) {
+      flickrToBlog.user = data.person;
       flickrToBlog.getRecentPhotos();
     });
   },
 
   // 最新の画像を取得する
   getRecentPhotos: function() {
-    var count = jQuery('#flickr_to_blog_photo_search_count').val();
     jQuery('#flickr_to_blog_loading').show();
-    this.flickrClient.peoplePhotos(this.user.id, count, function(photos) {
+    var method = 'flickr.people.getPublicPhotos';
+    var params = {
+      user_id: this.user.id,
+      per_page: jQuery('#flickr_to_blog_photo_search_count').val()
+    };
+    this.flickrClient.call(method, params, function(data) {
       jQuery('#flickr_to_blog_loading').hide();
-      flickrToBlog.photos = photos.photo;
+      flickrToBlog.photos = data.photos.photo;
       flickrToBlog.showWindow();
       flickrToBlog.window.updatePhotos(flickrToBlog.photos);
     });
@@ -68,12 +75,16 @@ flickrToBlog = {
 
   // 画像を検索する
   searchPhotos: function() {
-    var text = jQuery('#flickr_to_blog_photo_search_text').val();
-    var count = jQuery('#flickr_to_blog_photo_search_count').val();
     jQuery('#flickr_to_blog_loading').show();
-    this.flickrClient.searchPhotos(this.user.id, text, count, function(photos) {
+    var method = 'flickr.photos.search';
+    var params = {
+      user_id: this.user.id,
+      text: jQuery('#flickr_to_blog_photo_search_text').val(),
+      per_page: jQuery('#flickr_to_blog_photo_search_count').val()
+    };
+    this.flickrClient.call(method, params, function(data) {
       jQuery('#flickr_to_blog_loading').hide();
-      flickrToBlog.photos = photos.photo;
+      flickrToBlog.photos = data.photos.photo;
       flickrToBlog.showWindow();
       flickrToBlog.window.updatePhotos(flickrToBlog.photos);
     });
@@ -124,7 +135,7 @@ flickrToBlog.window = {
     });
     jQuery('#flickr_to_blog_photo_search_count')
       .css({width: "3em"})
-      .val("20");
+      .val("10");
     // 写真サイズ選択領域
     var photoSize = jQuery('<div id="flickr_to_blog_photo_size">')
       .css({margin: "0.5em"})
@@ -248,23 +259,29 @@ flickrToBlog.blog= {
 // end of flickrToBlog.blogging
 };
 
-// Flickr API のクライアントライブラリ
-flickrToBlog.flickrClient = {
-  baseUrl: 'http://api.flickr.com/services/rest/?',
-  apiKey:  '4b83a2343636ac77751fb722a6988593',
+/**
+ * a Flickr API client for JavaScript
+ */
+flickrClient = function(apiKey) {
+  this.baseUrl = 'http://api.flickr.com/services/rest/?';
+  this.apiKey = apiKey;
+}
 
-  // ユーザIDからユーザ情報を取得する
-  peopleInfo: function(userId, callback) {
-    var params = {
+flickrClient.prototype = {
+  /**
+   * return photo URL for this photo
+   * @param {Object} photo
+   * @param {String} size
+   * @return
+   */
+  call: function(method, params, callback) {
+    params = jQuery.extend({
       api_key: this.apiKey,
-      method: 'flickr.people.getInfo',
-      user_id: userId,
+      method: method,
       format: 'json'
-    };
-    this.item = params;
-    var url = this.baseUrl + this.serialize(params);
+    }, params);
     jQuery.ajax({
-      url: url,
+      url: this.baseUrl + this.serialize(params),
       dataType: "jsonp",
       jsonp: "jsoncallback",
       success: function(data, textStatus) {
@@ -272,61 +289,17 @@ flickrToBlog.flickrClient = {
           alert('Sorry, failed to connect to Flickr server.');
           return;
         }
-        callback(data.person);
+        callback(data);
       }
     });
   },
 
-  // ユーザIDから最近更新された写真を取得する
-  peoplePhotos: function(userId, count, callback) {
-    var params = {
-      api_key: this.apiKey,
-      method: 'flickr.people.getPublicPhotos',
-      user_id: userId,
-      per_page: count,
-      format: 'json'
-    };
-    var url = this.baseUrl + this.serialize(params);
-    jQuery.ajax({
-      url: url,
-      dataType: "jsonp",
-      jsonp: "jsoncallback",
-      success: function(data, textStatus) {
-        if (data.stat != "ok") {
-          alert('Sorry, failed to connect to Flickr server.');
-          return;
-        }
-        callback(data.photos);
-      }
-    });
-  },
-
-  searchPhotos: function(userId, text, count, callback) {
-    var params = {
-      api_key: this.apiKey,
-      method: 'flickr.photos.search',
-      user_id: userId,
-      text: text,
-      per_page: count,
-      format: 'json'
-    };
-    // TODO: 以下の処理を他の関数とひとつにまとめる
-    var url = this.baseUrl + this.serialize(params);
-    jQuery.ajax({
-      url: url,
-      dataType: "jsonp",
-      jsonp: "jsoncallback",
-      success: function(data, textStatus) {
-        if (data.stat != "ok") {
-          alert('Sorry, failed to connect to Flickr server.');
-          return;
-        }
-        callback(data.photos);
-      }
-    });
-  },
-
-  // 写真ファイルのURLを返す
+  /**
+   * return photo URL for this photo
+   * @param {Object} photo
+   * @param {String} size
+   * @return
+   */
   photoUrl: function(photo, size) {
     if (typeof size == "undefined") {
       size = "small";
@@ -342,13 +315,22 @@ flickrToBlog.flickrClient = {
     return url + ".jpg";
   },
 
-  // 写真のWebページのURLを返す
+
+  /**
+   * return Flickr web URL for this photo
+   * @param {Object} user
+   * @param {Object} photo
+   * @return
+   */
   webUrl: function(user, photo) {
     return user.photosurl._content + photo.id;
   },
 
-  // ハッシュ形式のパラメータをクエリストリングに変換する
-  // FIXME: フォームデータのシリアライズ
+  /**
+   * convert hash format parameter to query string
+   * @param {Object} params
+   * @return
+   */
   serialize: function(params) {
     var query = [];
     jQuery.each(params, function(key, val){ query.push(key + "=" + val)});
@@ -359,7 +341,8 @@ flickrToBlog.flickrClient = {
 
 // flickrToBlog を起動
 if (typeof flickrToBlogUserId != "undefined") {
-  flickrToBlog.setup(flickrToBlogUserId, flickrToBlogBlogType);
+  flickrToBlog.setup(flickrToBlogUserId, flickrToBlogBlogType,
+    new flickrClient('4b83a2343636ac77751fb722a6988593'));
 }
 
 })})});
