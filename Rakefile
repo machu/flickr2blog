@@ -19,5 +19,5 @@ end
 
 desc 'Packaged flickr2blog files'
 file package_name => FileList["./**/*"] do |t|
-  sh "tar zcf #{package_name} . " + excludes.map{|f| "--exclude #{f}"}.join(' ')
+  sh "tar czf #{package_name} . " + excludes.map{|f| "--exclude #{f}"}.join(' ')
 end
