@@ -218,7 +218,7 @@ flickrToBlog.blog= {
   // HTML
   html: {
     link: function(webUrl, srcUrl, photo, size) {
-      var img = '<img src="' + srcUrl + '" title="' + photo.title + '">';
+      var img = '<img src="' + srcUrl + '" title="' + photo.title + '" alt="' +  photo.title + '">';
       return '<a href="' + webUrl + '">' + img + '</a>';
     },
     textarea: function() {
