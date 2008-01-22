@@ -20,4 +20,5 @@ Rake::PackageTask.new(package[:name], package[:rev]) do |p|
   p.package_files.exclude('package')
   p.package_files.exclude('Rakefile')
   p.need_tar_gz  = true
+  p.need_zip  = true
 end
