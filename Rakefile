@@ -1,23 +1,23 @@
 # Rakefile for building flickr2blog package
-require 'rake/clean'
+require 'rake/packagetask'
 
-package_name = 'flickr2blog.tar.gz'
-excludes = [".svn", "Rakefile", package_name]
+package = {
+  :name => 'flickr2blog',
+  :rev => :noversion
+}
 
-CLOBBER.include(package_name)
-
-desc 'Same for package'
-task :default => :package
-
-desc 'Make flickr2blog package'
-task :package => [:update, package_name]
+desc 'update source and packaging'
+task :default => [:update, :package]
 
 desc 'Update files from Subversion Repository'
 task :update do |t|
   sh "svn update"
 end
 
-desc 'Packaged flickr2blog files'
-file package_name => FileList["./**/*"] do |t|
-  sh "tar czf #{package_name} . " + excludes.map{|f| "--exclude #{f}"}.join(' ')
+Rake::PackageTask.new(package[:name], package[:rev]) do |p|
+  p.package_dir = 'package'
+  p.package_files.include('**/*')
+  p.package_files.exclude('package')
+  p.package_files.exclude('Rakefile')
+  p.need_tar_gz  = true
 end
