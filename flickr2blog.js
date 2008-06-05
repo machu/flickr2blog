@@ -11,7 +11,7 @@ var load = function(src, check, next) {
   if (!check()) {
     var script = document.createElement('script');
     script.src = src;
-    document.documentElement.appendChild(script);
+    (document.getElementsByTagName('head').item(0) || document.body).appendChild(script);
     setTimeout(function() {
       if (!check()) setTimeout(arguments.callee, 100);
       else next();

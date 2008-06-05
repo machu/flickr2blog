@@ -21,7 +21,7 @@
 					var link = "javascript:var flickrToBlogUserId='" + userId
 					         + "',flickrToBlogBlogType='" + blogType
 					         + "',flickrToBlogBaseUrl='" + baseUrl
-					         + "';(function(d,s){if(typeof flickrToBlog!='undefined')flickrToBlog.showWindow();else{s=d.createElement('script');s.charset='UTF-8';s.src=flickrToBlogBaseUrl+'flickr2blog.js?'+new Date().getTime();d.documentElement.appendChild(s);}})(document)";
+					         + "';(function(d,s){if(typeof flickrToBlog!='undefined')flickrToBlog.showWindow();else{s=d.createElement('script');s.charset='UTF-8';s.src=flickrToBlogBaseUrl+'flickr2blog.js?'+new Date().getTime();d.body.appendChild(s);}})(document)";
 					$('#bookmarklet_src').val(link);
 					$('#bookmarklet').attr({href: link}).show();
 				}
