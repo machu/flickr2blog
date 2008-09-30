@@ -21,10 +21,10 @@ var load = function(src, check, next) {
 };
 
 // load jQuery library
-load(flickrToBlogBaseUrl + 'lib/jquery-1.2.2.min.js', 'window.jQuery', function(){
+load(flickrToBlogBaseUrl + 'lib/jquery-1.2.6.min.js', 'window.jQuery', function(){
 // jQuery.fn.prevAll は jQuery1.1系には存在しない
 // （jQuery1.1系が使われている場合は1.2系で上書きする）
-load(flickrToBlogBaseUrl + 'lib/jquery-1.2.2.min.js', 'window.jQuery.fn.prevAll', function(){
+load(flickrToBlogBaseUrl + 'lib/jquery-1.2.6.min.js', 'window.jQuery.fn.prevAll', function(){
 jQuery.noConflict();
 
 // load ThickBox library
@@ -121,7 +121,7 @@ flickrToBlog.window = {
       // IEだとformは先にappendToでノードに含めないと反映されない
       .appendTo(control);
     jQuery('#flickr_to_blog_photo_search')
-      .css({padding: "0.5em", borderBottom: "solid 1px #999"})
+      .css({padding: "0.5em", borderBottom: "1px solid #999"})
       .append('<input type="text" id="flickr_to_blog_photo_search_text"> ')
       .append('<button id="flickr_to_blog_photo_search_submit" type="submit">Search</button> ')
       .append('<select id="flickr_to_blog_photo_search_count"></select>')
@@ -195,7 +195,7 @@ flickrToBlog.image = {
   create: function(photo, srcUrl, webUrl) {
     var image = jQuery('<img>')
       .attr({src: srcUrl, rel: webUrl, title: photo.title})
-      .css({margin: "2px", border: "solid 1px #999", cursor: "pointer"})
+      .css({margin: "2px", border: "1px solid #999", cursor: "pointer"})
       .click(this.insertTextArea)
     image[0].photo = photo;
     return image;

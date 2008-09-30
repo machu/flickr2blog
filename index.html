@@ -3,8 +3,8 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>FlickrToBlog</title>
-		<script type="text/javascript" src="lib/jquery-1.2.2.min.js"></script>
-		<script type="text/javascript">/*<![CDATA[*/
+		<script type="text/javascript" src="lib/jquery-1.2.6.min.js"></script>
+		<script type="text/javascript">//<![CDATA[
 			$(document).ready(function(){
 				$('input').change(bookmarklet);
 				$('input[@name=blog_type]').click(bookmarklet);
@@ -26,11 +26,11 @@
 					$('#bookmarklet').attr({href: link}).show();
 				}
 			}
-		/*]]>*/</script>
+		//]]></script>
 		<style type="text/css">/*<![CDATA[*/
 			body { color: #333; background: #fff }
 			h1 { font-weight: normal; }
-			h2 { font-weight: normal; border-bottom: solid 1px #99f }
+			h2 { font-weight: normal; border-bottom: 1px solid #99f }
 		/*]]>*/</style>
 	</head>
 	<body>
@@ -41,15 +41,15 @@
 			<label for="user_id">
 				あなたの Flickr ID を入力してください:
 			</label>
-			<input type="" name="user_id" id="user_id" value="" size="30" />
-			<p style="font-size: 0.9em; border: dashed 1px #999; padding: 0.5em; background: #ffc;">※ Flickr ID は「19594487@N00」のような文字列です。分からないときは <a href="http://idgettr.com/">idgettr</a> で調べることができます。</p>
+			<input type="text" name="user_id" id="user_id" value="" size="30" />
+			<p style="font-size: 0.9em; border: 1px dashed #999; padding: 0.5em; background: #ffc;">※ Flickr ID は「19594487@N00」のような文字列です。分からないときは <a href="http://idgettr.com/">idgettr</a> で調べることができます。</p>
 		</div>
 
 		<h2>Step2: Blogツールの選択</h2>
 		<div>
 			<p>お使いの Blog ツールを選んでください</p>
 		<label for="blog_type_html">
-			<input type="radio" name="blog_type" id="blog_type_html" value="html" checked="true" />
+			<input type="radio" name="blog_type" id="blog_type_html" value="html" checked="checked" />
 			デフォルト
 		</label>
 		<label for="blog_type_hatena">
@@ -68,14 +68,14 @@
 
 		<h2>Step3: Bookmarklet の登録</h2>
 		<div>
-			<p>Bookmarklet をお気に入り / ブックマークに登録してください<p>
+			<p>Bookmarklet をお気に入り / ブックマークに登録してください</p>
 			<ul>
 				<li>あなたの Bookmarklet: <a id="bookmarklet" style="font-size: 1.2em; background: pink; padding: 0.3em; display: none">FlickrToBlog</a></li>
 			</ul>
 			<p>参考: Bookmarklet のソース</p>
 			<textarea id="bookmarklet_src" rows="5" cols="80"></textarea>
 		</div>
-		
+
 		<h2>カスタマイズ: スクリプト設置場所の変更</h2>
 		<div>
 			<p>Bookmarklet が呼び出すスクリプトを自分のWebサイトに置く場合は、以下のURLをスクリプトを設置したディレクトリのURLに変更してください。</p>
